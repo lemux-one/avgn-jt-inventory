@@ -43,7 +43,7 @@ class AvgnJtInventoryApplicationTests {
 
     @Test
     public void healthStatusIsUp() throws Exception {
-        mvc.perform(get(("/manage/health")))
+        mvc.perform(get("/manage/health"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/vnd.spring-boot.actuator.v3+json"))
                 .andExpect(jsonPath("$.status").value("UP"));
@@ -51,56 +51,56 @@ class AvgnJtInventoryApplicationTests {
 
     @Test
     public void apiBaseEndpointIsUsingHAL() throws Exception {
-        mvc.perform(get(("/api")))
+        mvc.perform(get("/api"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"));
     }
 
     @Test
     public void apiContainersEndpointIsUsingHAL() throws Exception {
-        mvc.perform(get(("/api/containers")))
+        mvc.perform(get("/api/containers"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"));
     }
 
     @Test
     public void apiManagersEndpointIsUsingHAL() throws Exception {
-        mvc.perform(get(("/api/managers")))
+        mvc.perform(get("/api/managers"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"));
     }
 
     @Test
     public void apiProductsEndpointIsUsingHAL() throws Exception {
-        mvc.perform(get(("/api/products")))
+        mvc.perform(get("/api/products"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"));
     }
 
     @Test
     public void apiRolesEndpointIsUsingHAL() throws Exception {
-        mvc.perform(get(("/api/roles")))
+        mvc.perform(get("/api/roles"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"));
     }
 
     @Test
     public void apiSectionsEndpointIsUsingHAL() throws Exception {
-        mvc.perform(get(("/api/sections")))
+        mvc.perform(get("/api/sections"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"));
     }
 
     @Test
     public void apiStoresEndpointIsUsingHAL() throws Exception {
-        mvc.perform(get(("/api/stores")))
+        mvc.perform(get("/api/stores"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"));
     }
 
     @Test
     public void apiTypesEndpointIsUsingHAL() throws Exception {
-        mvc.perform(get(("/api/types")))
+        mvc.perform(get("/api/types"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/hal+json"));
     }
