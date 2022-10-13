@@ -48,4 +48,60 @@ class AvgnJtInventoryApplicationTests {
                 .andExpect(content().contentType("application/vnd.spring-boot.actuator.v3+json"))
                 .andExpect(jsonPath("$.status").value("UP"));
     }
+
+    @Test
+    public void apiBaseEndpointIsUsingHAL() throws Exception {
+        mvc.perform(get(("/api")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"));
+    }
+
+    @Test
+    public void apiContainersEndpointIsUsingHAL() throws Exception {
+        mvc.perform(get(("/api/containers")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"));
+    }
+
+    @Test
+    public void apiManagersEndpointIsUsingHAL() throws Exception {
+        mvc.perform(get(("/api/managers")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"));
+    }
+
+    @Test
+    public void apiProductsEndpointIsUsingHAL() throws Exception {
+        mvc.perform(get(("/api/products")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"));
+    }
+
+    @Test
+    public void apiRolesEndpointIsUsingHAL() throws Exception {
+        mvc.perform(get(("/api/roles")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"));
+    }
+
+    @Test
+    public void apiSectionsEndpointIsUsingHAL() throws Exception {
+        mvc.perform(get(("/api/sections")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"));
+    }
+
+    @Test
+    public void apiStoresEndpointIsUsingHAL() throws Exception {
+        mvc.perform(get(("/api/stores")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"));
+    }
+
+    @Test
+    public void apiTypesEndpointIsUsingHAL() throws Exception {
+        mvc.perform(get(("/api/types")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/hal+json"));
+    }
 }
