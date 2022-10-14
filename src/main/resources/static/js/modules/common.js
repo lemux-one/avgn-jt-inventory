@@ -269,7 +269,13 @@ var NavComponent = {
             return m("a.pseudo.button", {href: link.route}, link.title);
         });
         return m("nav", [
-            m("a.brand", {href: "#!/"}, m("span", "Inventory")),
+            m("a.brand", {href: "#!/"}, [
+                m("img.brand-icon", {
+                    src: "/img/check.svg", 
+                    alt: "Check Icon"
+                }),
+                m("span", "Inventory")
+            ]),
             
             //responsive part
             m("input.show[type=checkbox]", {id: "menu"}),

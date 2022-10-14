@@ -19,6 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Author     : lemux
 */
 
+.brand-icon {
+    height: 1.5rem;
+    width: 1.5rem;
+    margin-right: .5rem;
+}
+
 div.content {
     margin-top: 3.5rem;
 }
