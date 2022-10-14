@@ -14,24 +14,53 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+var loadJSON = (url, onDone, onError) => {
+    m.request({
+        method: "GET",
+        url: url,
+        headers: {
+            "Accept": "application/hal+json"
+        }
+    }).then(function(resp) {
+        onDone(resp);
+    }).catch(function(err) {
+        onError(err);
+    });
+};
+
 class RestItem {
-    constructor(href, parentCollection) {
-        this.href = href;
-        this.parent = parentCollection;
-        this.entity = {};
+    constructor(collectionItem, parent) {
+        this.entity = collectionItem;
+        this.parent = parent;
+        this.relations = {};
+        this.etag = null;
     }
     load() {
-        //this.parent.load();
         const self = this;
         m.request({
             method: "GET",
-            url: self.href,
+            url: self.entity._links.self.href,
             headers: {
                 "Accept": "application/hal+json"
-            }
+            },
+            extract: (xhr) => {return xhr;}
         }).then(function(resp) {
-            self.entity = resp;
-            console.log(self);
+            const etag = resp.getResponseHeader("etag");
+            //console.log(resp.getAllResponseHeaders());
+            self.entity = JSON.parse(resp.responseText);
+            if (etag) {
+                self.etag = parseInt(etag.replaceAll('"', ''));
+            }
+            self.parent.attrs.forEach((attr) => {
+                if (!self.entity[attr] && self.entity._links[attr]) {
+                    loadJSON(self.entity._links[attr].href, (data) => {
+                        self.relations[attr] = data;
+                    }, (err) => {
+                        console.log(err.code);
+                    });
+                }
+            });
+            //console.log(self);
         }).catch(function(err) {
             console.log(err.code);
         });
@@ -45,6 +74,7 @@ class RestCollection {
         this.entity = {};
         this.schema = {};
         this.items = [];
+        this.fullItems = [];
         this.attrs = [];
         if (!route) {
             this.route = "#!/"+this.rel;
@@ -63,9 +93,18 @@ class RestCollection {
         }).then(function(resp) {
             self.entity = resp;
             self.items = resp._embedded[self.rel];
-            self.__loadProfile(self);
+            self.__loadProfile();
+            self.__loadFullItems();
         }).catch(function(err) {
             console.log(err.code);
+        });
+    }
+    __loadFullItems() {
+        const self = this;
+        this.items.forEach((item) => {
+            const fullItem = new RestItem(item, self);
+            fullItem.load();
+            self.fullItems.push(fullItem);
         });
     }
     __loadProfile() {
@@ -137,7 +176,8 @@ class CollectionComponent {
         }));
         const table = m("table.one", [
             m("tr", ths),
-            self.collection.items.map((item) => {
+            self.collection.fullItems.map((fullItem) => {
+                const item = fullItem.entity;
                 const tds = [];
                 const actions = [
                     m("button.error", {title: "Delete element", onclick: () => {
@@ -153,10 +193,10 @@ class CollectionComponent {
                 tds.push(m("td", actions));
                 self.collection.attrs.forEach((attr) => {
                     if (attr in item) {
-                        console.log("Direct attribute: " + attr);
                         tds.push(m("td", m("p", item[attr])));
-                    } else {
-                        console.log("Indirect attribute: " + attr);
+                    } else if (attr in fullItem.relations) {
+                        //tds.push(m("td", m("a", {href: item._links[attr].href}, "Link")));
+                        tds.push(m("td", m("p", fullItem.relations[attr].name)));
                     }
                 });
                 return m("tr", tds);
@@ -240,4 +280,4 @@ var NavComponent = {
     }
 };
 
-export { RestItem, RestCollection, CollectionComponent, FormAddComponent, NavComponent };
+export { RestCollection, CollectionComponent, FormAddComponent, NavComponent };

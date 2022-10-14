@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 import {
-    RestItem,
     RestCollection,
     CollectionComponent,
     FormAddComponent,
@@ -62,11 +61,6 @@ NavComponent.links = [
     {route: products.route, title: "Products"},
     {route: managers.route, title: "Managers"}
 ];
-
-/*
-var testItem1 = new RestItem("/api/sections/14", sections);
-testItem1.load();
-*/
 
 m.route(root, "/", {
     "/": {view: () => {return [m(NavComponent), m(StoreList)];}},

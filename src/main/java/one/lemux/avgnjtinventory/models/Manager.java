@@ -22,6 +22,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Version;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -44,5 +45,7 @@ public class Manager implements Serializable {
     
     private @NonNull @ManyToOne Role role;
     private @NonNull @ManyToOne Store store;
+    
+    private @Version @JsonIgnore Long version;
     
 }
