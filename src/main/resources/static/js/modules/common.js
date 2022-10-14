@@ -1,0 +1,243 @@
+/* 
+ * Copyright (C) 2022 lemux
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+class RestItem {
+    constructor(href, parentCollection) {
+        this.href = href;
+        this.parent = parentCollection;
+        this.entity = {};
+    }
+    load() {
+        //this.parent.load();
+        const self = this;
+        m.request({
+            method: "GET",
+            url: self.href,
+            headers: {
+                "Accept": "application/hal+json"
+            }
+        }).then(function(resp) {
+            self.entity = resp;
+            console.log(self);
+        }).catch(function(err) {
+            console.log(err.code);
+        });
+    }
+}
+
+class RestCollection {
+    constructor(rel, apiRoot, route) {
+        this.apiRoot = apiRoot;
+        this.rel = rel;
+        this.entity = {};
+        this.schema = {};
+        this.items = [];
+        this.attrs = [];
+        if (!route) {
+            this.route = "#!/"+this.rel;
+        } else {
+            this.route = route;
+        }
+    }
+    load() {
+        const self = this;
+        m.request({
+            method: "GET",
+            url: self.apiRoot + self.rel,
+            headers: {
+                "Accept": "application/hal+json"
+            }
+        }).then(function(resp) {
+            self.entity = resp;
+            self.items = resp._embedded[self.rel];
+            self.__loadProfile(self);
+        }).catch(function(err) {
+            console.log(err.code);
+        });
+    }
+    __loadProfile() {
+        const self = this;
+        m.request({
+            method: "GET",
+            url: self.entity._links.profile.href,
+            headers: {
+                "Accept": "application/schema+json"
+            }
+        }).then(function(resp) {
+            self.schema = resp;
+            self.attrs = [];
+            for (const prop in self.schema.properties) {
+                self.attrs.push(prop);
+            }
+        }).catch(function(err) {
+            console.log(err.code);
+        });
+    }
+    remove(item) {
+        const self = this;
+        m.request({
+            method: "DELETE",
+            url: item._links.self.href,
+            headers: {
+                "Accept": "application/hal+json"
+            }
+        }).then(function(resp) {
+            console.log(resp);
+            self.load();
+            m.redraw();
+        }).catch(function(err) {
+            console.log(err.code);
+        });
+    }
+    add(data) {
+        const self = this;
+        m.request({
+            method: "POST",
+            url: self.entity._links.self.href,
+            headers: {
+                "Accept": "application/hal+json"
+            },
+            body: data
+        }).then(function(resp) {
+            console.log(resp);
+            window.location.href = self.route;
+        }).catch(function(err) {
+            console.log(err.code);
+        });
+    }
+};
+
+class CollectionComponent {
+    constructor(restCollection, detailsRoute) {
+        this.collection = restCollection;
+        this.detailsRoute = detailsRoute;
+    }
+    oninit() {
+        this.collection.load();
+    }
+    view() {
+        const self = this;
+        const ths = [];
+        ths.push(m("th", "Actions"));
+        ths.push(self.collection.attrs.map((attr) => {
+            return m("th", self.collection.schema.properties[attr].title);
+        }));
+        const table = m("table.one", [
+            m("tr", ths),
+            self.collection.items.map((item) => {
+                const tds = [];
+                const actions = [
+                    m("button.error", {title: "Delete element", onclick: () => {
+                        self.collection.remove(item);
+                    }}, "x"),
+                    m("button.warning", {title: "Update element", onclick: () => {
+                        //TODO implement this
+                    }}, "#")
+                ];
+                if (self.detailsRoute) {
+                    actions.push(m("a.button", {href: self.detailsRoute, title: "Inspect elements"}, ">"));
+                }
+                tds.push(m("td", actions));
+                self.collection.attrs.forEach((attr) => {
+                    if (attr in item) {
+                        console.log("Direct attribute: " + attr);
+                        tds.push(m("td", m("p", item[attr])));
+                    } else {
+                        console.log("Indirect attribute: " + attr);
+                    }
+                });
+                return m("tr", tds);
+            })
+        ]);
+        return m(".content", [
+            m('article.card', [
+                m("header", [
+                    m("h3", self.collection.schema.title + " List"),
+                    m("a.button.success", {title: "Add element", href: "#!/" + self.collection.rel + "/add"}, "+")
+                    //m("a.button.warning", {href: "#"}, "Back")
+                ]),
+                table
+            ])
+        ]);
+    }
+};
+
+class FormAddComponent {
+    constructor(restCollection) {
+        this.collection = restCollection;
+    }
+    oninit() {
+        this.collection.load();
+    }
+    view() {
+        const self = this;
+        const inputs = [];
+        self.collection.attrs.forEach((attr) => {
+            const prop = self.collection.schema.properties[attr];
+            inputs.push(m("p", [
+                m("label.stack", prop.title),
+                m("input.stack", {type: "input", name: attr, placeholder: prop.title})
+            ]));
+        });
+        return m(".content", [
+            m("h3", "New " + self.collection.schema.title),
+            m("form", [
+                inputs,
+                m("button.success", {type: "button", title: "Submit changes", onclick: (evt) => {
+                    const elements = evt.target.form.elements;
+                    const data = {};
+                    let name = "";
+                    for (let i = 0; i < elements.length; i++) {
+                        if (elements[i].attributes.name) {
+                            name = elements[i].attributes.name.value;
+                            data[name] = elements[i].value;
+                        }
+                    }
+                    //console.log(data);
+                    self.collection.add(data);
+                }}, "Create"),
+                m("a.button.error", {title: "Discard any changes", href: self.collection.route}, "Discard")
+            ])
+        ]);
+    }
+};
+
+class FormUpdateComponent {
+    constructor(restItem) {
+        this.item = restItem;
+    }
+    oninit() {}
+};
+
+var NavComponent = {
+    links: [],
+    view: () => {
+        const links = NavComponent.links.map((link) => {
+            return m("a.pseudo.button", {href: link.route}, link.title);
+        });
+        return m("nav", [
+            m("a.brand", {href: "#!/"}, m("span", "Inventory")),
+            
+            //responsive part
+            m("input.show[type=checkbox]", {id: "menu"}),
+            m("label.burger.pseudo.button[for=menu]", "Menu"),
+            
+            m(".menu", links)
+        ]);
+    }
+};
+
+export { RestItem, RestCollection, CollectionComponent, FormAddComponent, NavComponent };
