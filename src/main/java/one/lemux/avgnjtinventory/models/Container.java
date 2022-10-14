@@ -37,7 +37,7 @@ import lombok.RequiredArgsConstructor;
 public class Container implements Serializable {
 
     private @Id @GeneratedValue Long id;
-    private @NonNull String type;
+    private @NonNull String name;
     private @Version @JsonIgnore Long version;
     
 }

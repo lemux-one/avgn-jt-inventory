@@ -21,6 +21,7 @@ import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Version;
 import lombok.Data;
@@ -40,8 +41,12 @@ public class Section implements Serializable {
     private @Id @GeneratedValue Long id;
     private @Version @JsonIgnore Long version;
     private @NonNull String name;
-    private @ManyToOne Store store;
     private @NonNull Double area;
-    private @ManyToOne Type type;
+    
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    private @NonNull Store store;
+    
+    private @NonNull @ManyToOne Type type;
     
 }

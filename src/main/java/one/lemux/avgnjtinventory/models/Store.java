@@ -18,9 +18,11 @@ package one.lemux.avgnjtinventory.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Version;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,5 +41,8 @@ public class Store implements Serializable {
     private @Id @GeneratedValue Long id;
     private @NonNull String name;
     private @Version @JsonIgnore Long version;
+    
+    @OneToMany(mappedBy = "store")
+    private List<Section> sections;
     
 }

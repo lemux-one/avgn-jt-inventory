@@ -42,6 +42,7 @@ public class Manager implements Serializable {
     // TODO use encoder to handle passwords
     private @JsonIgnore String password;
     
-    private @ManyToOne Role role;
+    private @NonNull @ManyToOne Role role;
+    private @NonNull @ManyToOne Store store;
     
 }

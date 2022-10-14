@@ -17,11 +17,17 @@
 package one.lemux.avgnjtinventory;
 
 import one.lemux.avgnjtinventory.models.Container;
+import one.lemux.avgnjtinventory.models.Manager;
+import one.lemux.avgnjtinventory.models.Product;
 import one.lemux.avgnjtinventory.models.Role;
+import one.lemux.avgnjtinventory.models.Section;
 import one.lemux.avgnjtinventory.models.Store;
 import one.lemux.avgnjtinventory.models.Type;
 import one.lemux.avgnjtinventory.repositories.ContainerRepository;
+import one.lemux.avgnjtinventory.repositories.ManagerRepository;
+import one.lemux.avgnjtinventory.repositories.ProductRepository;
 import one.lemux.avgnjtinventory.repositories.RoleRepository;
+import one.lemux.avgnjtinventory.repositories.SectionRepository;
 import one.lemux.avgnjtinventory.repositories.StoreRepository;
 import one.lemux.avgnjtinventory.repositories.TypeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,17 +45,26 @@ public class DatabaseLoader implements CommandLineRunner {
     private final TypeRepository types;
     private final RoleRepository roles;
     private final StoreRepository stores;
+    private final SectionRepository sections;
+    private final ProductRepository products;
+    private final ManagerRepository managers;
 
     @Autowired
     public DatabaseLoader(
             ContainerRepository containers, 
             TypeRepository types, 
             RoleRepository roles,
-            StoreRepository stores) {
+            StoreRepository stores,
+            SectionRepository sections,
+            ProductRepository products,
+            ManagerRepository managers) {
         this.containers = containers;
         this.types = types;
         this.roles = roles;
         this.stores = stores;
+        this.sections = sections;
+        this.products = products;
+        this.managers = managers;
     }
 
     @Override
@@ -57,17 +72,36 @@ public class DatabaseLoader implements CommandLineRunner {
         containers.save(new Container("Cartón"));
         containers.save(new Container("Plástico"));
         containers.save(new Container("Cristal"));
-        containers.save(new Container("Nylon"));
+        var nylon = containers.save(new Container("Nylon"));
 
         types.save(new Type("Electrodoméstico"));
         types.save(new Type("Cárnico"));
-        types.save(new Type("Ropa"));
+        var typeClothing = types.save(new Type("Ropa"));
         types.save(new Type("Aseo"));
 
-        roles.save(new Role("Administrador"));
-        roles.save(new Role("Operario"));
+        var rolAdmin = roles.save(new Role("Administrador"));
+        var rolOpe = roles.save(new Role("Operario"));
         
-        stores.save(new Store("ECASA-1"));
+        var store1 = stores.save(new Store("ECASA-1"));
+        
+        managers.save(new Manager("admin", rolAdmin, store1));
+        managers.save(new Manager("operator", rolOpe, store1));
+        
+        var children = sections.save(new Section(
+                "Ropa Infantil",
+                55.50,
+                store1,
+                typeClothing));
+        sections.save(new Section(
+                "Ropa Femenina", 
+                86.50,
+                store1,
+                typeClothing));
+        
+        products.save(new Product("Blusa Veraniega",
+                "Rojo", 5.80, Boolean.FALSE,
+                nylon, 7896546L, 500L,
+                children));
     }
 
 }

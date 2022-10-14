@@ -38,12 +38,12 @@ public class Product implements Serializable {
     private @Id @GeneratedValue Long id;
     private @NonNull String name;
     // TODO define how to handle "size" field
-    private String color;
-    private @NonNull Double unit_price;
-    private Boolean isFragile;
-    private @ManyToOne Container container;
-    private Long lot;
+    private @NonNull String color;
+    private @NonNull Double unitPrice;
+    private @NonNull Boolean fragile;
+    private @NonNull @ManyToOne Container container;
+    private @NonNull Long lot;
     private @NonNull Long stock;
-    private @ManyToOne Section section;
+    private @NonNull @ManyToOne Section section;
     
 }
