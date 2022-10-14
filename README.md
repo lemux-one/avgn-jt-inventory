@@ -10,14 +10,12 @@ The project uses JPA for the data source abstraction and H2 database for simplic
 
 To provide paging, filtering and sorting capabilites the project depends on QueryDSL. Although further implementations and customization should be done to give a really production ready result. At the moment it only allows for default strategies to process queries given via URL parameters using GET requests.
 
-
 ## TODOs
  - Implement security controls and data access protection
  - Implement business logic to prevent elimination of data based on especific constraints
  - Properly document the API (beyond its self explanatory and standards based approach)
  - Add many more tests
  - Add more documentation within the code to classes and methods
-
 
 ## Extras
  - A HAL explorer is shipped to navigate and test the API. It's accessible via the "/api" endpoint (which is also the API root endpoint)
