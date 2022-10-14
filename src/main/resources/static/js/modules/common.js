@@ -208,7 +208,11 @@ class CollectionComponent {
                 tds.push(m("td", actions));
                 self.collection.attrs.forEach((attr) => {
                     if (attr in item) {
-                        tds.push(m("td", m("p", item[attr])));
+                        if ("boolean" === self.collection.schema.properties[attr].type) {
+                            tds.push(m("td", m("p", item[attr].toString())));
+                        } else {
+                            tds.push(m("td", m("p", item[attr])));
+                        }
                     } else if (attr in fullItem.relations) {
                         //tds.push(m("td", m("a", {href: item._links[attr].href}, "Link")));
                         tds.push(m("td", m("p", fullItem.relations[attr].name)));
