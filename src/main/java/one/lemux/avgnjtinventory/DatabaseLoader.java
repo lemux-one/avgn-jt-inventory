@@ -77,12 +77,13 @@ public class DatabaseLoader implements CommandLineRunner {
         types.save(new Type("Electrodoméstico"));
         types.save(new Type("Cárnico"));
         var typeClothing = types.save(new Type("Ropa"));
-        types.save(new Type("Aseo"));
+        var typeCleaning = types.save(new Type("Aseo"));
 
         var rolAdmin = roles.save(new Role("Administrador"));
         var rolOpe = roles.save(new Role("Operario"));
         
-        var store1 = stores.save(new Store("ECASA-1"));
+        var store1 = stores.save(new Store("Almacen1"));
+        var store2 = stores.save(new Store("Almacen2"));
         
         managers.save(new Manager("admin", rolAdmin, store1));
         managers.save(new Manager("operator", rolOpe, store1));
@@ -97,6 +98,11 @@ public class DatabaseLoader implements CommandLineRunner {
                 86.50,
                 store1,
                 typeClothing));
+        sections.save(new Section(
+                "Productos de tocador", 
+                86.50,
+                store2,
+                typeCleaning));
         
         products.save(new Product("Blusa Veraniega",
                 "Rojo", 5.80, Boolean.FALSE,

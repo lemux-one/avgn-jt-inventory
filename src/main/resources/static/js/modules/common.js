@@ -68,7 +68,7 @@ class RestItem {
 }
 
 class RestCollection {
-    constructor(rel, apiRoot, route) {
+    constructor(rel, apiRoot, route = null, query = {}) {
         this.apiRoot = apiRoot;
         this.rel = rel;
         this.entity = {};
@@ -77,19 +77,21 @@ class RestCollection {
         this.fullItems = [];
         this.attrs = [];
         if (!route) {
-            this.route = "#!/"+this.rel;
+            this.route = "/"+this.rel;
         } else {
             this.route = route;
         }
+        this.query = query;
     }
-    load() {
+    load(query = {}) {
         const self = this;
         m.request({
             method: "GET",
             url: self.apiRoot + self.rel,
             headers: {
                 "Accept": "application/hal+json"
-            }
+            },
+            params: query
         }).then(function(resp) {
             self.entity = resp;
             self.items = resp._embedded[self.rel];
@@ -161,12 +163,14 @@ class RestCollection {
 };
 
 class CollectionComponent {
-    constructor(restCollection, detailsRoute) {
+    constructor(restCollection, detailsRoute, detailsParams = {}) {
         this.collection = restCollection;
         this.detailsRoute = detailsRoute;
+        this.detailsParams = detailsParams;
+        this.query = {};
     }
     oninit() {
-        this.collection.load();
+        this.collection.load(this.query);
     }
     view() {
         const self = this;
@@ -193,7 +197,13 @@ class CollectionComponent {
                     }}, "#")
                 ];
                 if (self.detailsRoute) {
-                    actions.push(m("a.button", {href: self.detailsRoute, title: "Inspect elements"}, ">"));
+                    actions.push(m("button", {onclick: () => {
+                        const params = {};
+                        Object.keys(self.detailsParams).forEach((key) => {
+                            params[key] = item[self.detailsParams[key]];
+                        });
+                        m.route.set(self.detailsRoute, params);
+                    }, title: "Inspect elements"}, ">"));
                 }
                 tds.push(m("td", actions));
                 self.collection.attrs.forEach((attr) => {
@@ -213,7 +223,7 @@ class CollectionComponent {
         if (self.collection.entity["page"]) {
             const page = self.collection.entity["page"];
             pagingComponent = m("footter.no-border", [
-                m("label", "Size: " + page.size)
+                //m("label", "Size: " + page.size)
             ]);
         }
         
@@ -281,10 +291,14 @@ class FormUpdateComponent {
 
 var NavComponent = {
     links: [],
-    home: "#!/",
+    home: "/",
     view: () => {
         const links = NavComponent.links.map((link) => {
-            return m("a.pseudo.button", {href: link.route}, link.title);
+            const attributes = {href: link.route, className: "pseudo button"};
+            if (m.route.get() === link.route) {
+                attributes["disabled"] = "disabled";
+            }
+            return m(m.route.Link, attributes, link.title);
         });
         return m("nav", [
             m("a.brand", {href: NavComponent.home}, [

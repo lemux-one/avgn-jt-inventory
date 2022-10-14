@@ -37,11 +37,13 @@ var ContainerList = new CollectionComponent(containers);
 var ContainerForm = new FormAddComponent(containers);
 
 var stores = new RestCollection('stores', baseApiUrl);
-var StoreList = new CollectionComponent(stores, "#!/sections");
+var StoreList = new CollectionComponent(stores,
+    "/sections/of/:store", {store: "name"});
 var StoreForm = new FormAddComponent(stores);
 
 var sections = new RestCollection('sections', baseApiUrl);
-var SectionList = new CollectionComponent(sections, "#!/products");
+var SectionList = new CollectionComponent(sections,
+    "/products/of/:section", {section: "name"});
 var SectionForm = new FormAddComponent(sections);
 
 var products = new RestCollection('products', baseApiUrl);
@@ -73,8 +75,16 @@ m.route(root, "/", {
     "/stores": {view: () => {return [m(NavComponent), m(StoreList)];}},
     "/stores/add": {view: () => {return [m(NavComponent), m(StoreForm)];}},
     "/sections": {view: () => {return [m(NavComponent), m(SectionList)];}},
+    "/sections/of/:store": {view: (vnode) => {
+        SectionList.query = {"store.name": vnode.attrs.store};
+        return [m(NavComponent), m(SectionList)];
+    }},
     "/sections/add": {view: () => {return [m(NavComponent), m(SectionForm)];}},
     "/products": {view: () => {return [m(NavComponent), m(ProductList)];}},
+    "/products/of/:section": {view: (vnode) => {
+        ProductList.query = {"section.name": vnode.attrs.section};
+        return [m(NavComponent), m(ProductList)];
+    }},
     "/products/add": {view: () => {return [m(NavComponent), m(ProductForm)];}},
     "/managers": {view: () => {return [m(NavComponent), m(ManagerList)];}},
     "/managers/add": {view: () => {return [m(NavComponent), m(ManagerForm)];}}
