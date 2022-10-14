@@ -17,12 +17,11 @@
 package one.lemux.avgnjtinventory.repositories;
 
 import one.lemux.avgnjtinventory.models.Container;
-import org.springframework.data.repository.CrudRepository;
 
 /**
  *
  * @author lemux
  */
-public interface ContainerRepository extends CrudRepository<Container, Long> {
+public interface ContainerRepository extends QueryableRepository<Container, Long> {
 
 }

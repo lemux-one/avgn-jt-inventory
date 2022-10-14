@@ -16,12 +16,16 @@
  */
 package one.lemux.avgnjtinventory.repositories;
 
-import one.lemux.avgnjtinventory.models.Section;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.NoRepositoryBean;
 
 /**
  *
  * @author lemux
  */
-public interface SectionRepository extends QueryableRepository<Section, Long> {
+@NoRepositoryBean
+public interface QueryableRepository<T, ID> extends
+        CrudRepository<T, ID>, QuerydslPredicateExecutor<T> {
     
 }

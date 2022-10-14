@@ -29,6 +29,6 @@ div.content {
     margin-top: 3.5rem;
 }
 
-.card, .card header {
+.no-border {
     border: none !important;
 }

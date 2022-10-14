@@ -17,12 +17,11 @@
 package one.lemux.avgnjtinventory.repositories;
 
 import one.lemux.avgnjtinventory.models.Role;
-import org.springframework.data.repository.CrudRepository;
 
 /**
  *
  * @author lemux
  */
-public interface RoleRepository extends CrudRepository<Role, Long> {
+public interface RoleRepository extends QueryableRepository<Role, Long> {
 
 }

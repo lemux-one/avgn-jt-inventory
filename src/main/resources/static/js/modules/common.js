@@ -101,6 +101,7 @@ class RestCollection {
     }
     __loadFullItems() {
         const self = this;
+        this.fullItems = [];
         this.items.forEach((item) => {
             const fullItem = new RestItem(item, self);
             fullItem.load();
@@ -169,11 +170,15 @@ class CollectionComponent {
     }
     view() {
         const self = this;
+        
+        // create the headers dynamically
         const ths = [];
         ths.push(m("th", "Actions"));
         ths.push(self.collection.attrs.map((attr) => {
             return m("th", self.collection.schema.properties[attr].title);
         }));
+        
+        // fill the table
         const table = m("table.one", [
             m("tr", ths),
             self.collection.fullItems.map((fullItem) => {
@@ -202,14 +207,26 @@ class CollectionComponent {
                 return m("tr", tds);
             })
         ]);
+        
+        // enable pagination support if applicable
+        let pagingComponent = [];
+        if (self.collection.entity["page"]) {
+            const page = self.collection.entity["page"];
+            pagingComponent = m("footter.no-border", [
+                m("label", "Size: " + page.size)
+            ]);
+        }
+        
+        // layout the contents
         return m(".content", [
-            m('article.card', [
-                m("header", [
+            m('article.card.no-border', [
+                m("header.no-border", [
                     m("h3", self.collection.schema.title + " List"),
                     m("a.button.success", {title: "Add element", href: "#!/" + self.collection.rel + "/add"}, "+")
                     //m("a.button.warning", {href: "#"}, "Back")
                 ]),
-                table
+                table,
+                pagingComponent
             ])
         ]);
     }
@@ -264,12 +281,13 @@ class FormUpdateComponent {
 
 var NavComponent = {
     links: [],
+    home: "#!/",
     view: () => {
         const links = NavComponent.links.map((link) => {
             return m("a.pseudo.button", {href: link.route}, link.title);
         });
         return m("nav", [
-            m("a.brand", {href: "#!/"}, [
+            m("a.brand", {href: NavComponent.home}, [
                 m("img.brand-icon", {
                     src: "/img/check.svg", 
                     alt: "Check Icon"
