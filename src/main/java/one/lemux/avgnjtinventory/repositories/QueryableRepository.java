@@ -17,15 +17,17 @@
 package one.lemux.avgnjtinventory.repositories;
 
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
 /**
  *
  * @author lemux
+ * @param <T>
+ * @param <ID>
  */
 @NoRepositoryBean
 public interface QueryableRepository<T, ID> extends
-        CrudRepository<T, ID>, QuerydslPredicateExecutor<T> {
+        PagingAndSortingRepository<T, ID>, QuerydslPredicateExecutor<T> {
     
 }
